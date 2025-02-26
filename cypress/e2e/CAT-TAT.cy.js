@@ -80,4 +80,43 @@ describe('template spec', () => {
     }
     cy.fillMandatoryFieldsAndSubmit(data)
   })
+
+  it('seleciona um produto (YouTube) por seu texto', () => {
+    cy.get('#product').select('YouTube')
+    cy.get('#product').should('have.value', 'youtube')
+  })
+
+  it('seleciona um produto (Blog) por seu índice', () => {
+    cy.get('#product').select(1)
+    cy.get('#product').should('have.value', 'blog')
+  })  
+  
+  it('marca o tipo de atendimento "Feedback"', () => {
+    cy.get(':nth-child(4) > input').check('feedback').should('be.checked')
+  })
+
+  it('marca cada tipo de atendimento', () => {
+    cy.get('input[type="radio"]')
+      .each(tipoDeAtendimento => { // pega cada input com tipo radio
+        cy.wrap(tipoDeAtendimento) // impacota cada input com tipo radio
+          .check()
+          .should('be.checked')
+      })
+  })
+
+  it('verifica que a política de privacidade abre em outra aba sem a necessidade de um clique', () => {
+    cy.contains('a', 'Política de Privacidade')
+      .should('have.attr', 'target', '_blank')
+  })
+
+  it('acessa a página da política de privacidade removendo o target e então clicando no link', () => {
+    cy.contains('a', 'Política de Privacidade')
+      .should('have.attr', 'target', '_blank')
+      .and('have.attr', 'href', 'privacy.html')
+      .invoke('removeAttr', 'target')
+      .click()
+      
+    cy.contains('h1', 'CAC TAT - Política de Privacidade')
+      .should('be.visible')
+  })
 })
