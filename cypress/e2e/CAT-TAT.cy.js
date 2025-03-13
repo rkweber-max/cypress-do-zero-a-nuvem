@@ -3,7 +3,11 @@ describe('template spec', () => {
     cy.visit('src/index.html')
     
   })
+
+Cypress._.times(3, () => {
   it('Criar formuário', () => {
+    cy.clock()
+
     const longText = Cypress._.repeat('Texto longo alternativo !! ', 20) // _ é chamado de low dash, e esta dentro de Cypress
 
     cy.get('#firstName').type('Rodrigo')
@@ -12,7 +16,11 @@ describe('template spec', () => {
     cy.get('#open-text-area').type(longText, { delay: 0 })
     cy.get('.button').click()
     cy.get('.success').contains('Mensagem enviada com sucesso.')
+    cy.tick(3000)
+    cy.get('.success').should('not.be.visible')
   })
+})
+
 
   it('Exibe mensagem de erro ao submeter o formulário com um email com formatação inválida', () => {
     const longText = Cypress._.repeat('Texto longo alternativo !! ', 20) // _ é chamado de low dash, e esta dentro de Cypress
@@ -118,5 +126,48 @@ describe('template spec', () => {
       
     cy.contains('h1', 'CAC TAT - Política de Privacidade')
       .should('be.visible')
+  })
+
+  it('exibe e oculta as mensagens de sucesso e erro usando .invoke()', () => {
+    cy.get('.success')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Mensagem enviada com sucesso.')
+      .invoke('hide')
+      .should('not.be.visible')
+    cy.get('.error')
+      .should('not.be.visible')
+      .invoke('show')
+      .should('be.visible')
+      .and('contain', 'Valide os campos obrigatórios!')
+      .invoke('hide')
+      .should('not.be.visible')
+  })
+  
+  it('preenche o campo da área de texto usando o comando invoke', () => {
+    cy.get('#open-text-area')
+      .invoke('val', 'Um texto qualquer')
+      .should('have.value', 'Um texto qualquer')
+  })
+
+  it('faz uma requisição HTTP', () => {
+    cy.request({
+      method: 'GET',
+      url: 'https://cac-tat-v3.s3.eu-central-1.amazonaws.com/index.html'
+    }).then((response) => {
+      expect(response.status).to.eql(200)
+      expect(response.statusText).to.eql('OK')
+      expect(response.body).to.contains('CAC TAT')
+    })
+  })
+
+  it.only('encontre o gato - desafio final', () => {
+    cy.get('#cat')
+      .invoke('show')
+      .should('be.visible')
+    cy.get('#title')
+      .invoke('text', 'CAT TAT')
+      .s
   })
 })
